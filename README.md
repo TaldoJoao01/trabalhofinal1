@@ -1,161 +1,139 @@
-﻿# Consulta Certa
+# Consulta Certa
 
-Sistema web para **reduzir faltas (absenteísmo) em consultas médicas da atenção básica**, organizando agendamentos, confirmações e o reaproveitamento de vagas liberadas.
+Sistema web para reduzir faltas em consultas de Unidades Básicas de Saúde (UBS), liberar vagas e facilitar o acesso de quem está na fila de espera.
 
-> Projeto Web — Entrega 1 (Problema e estrutura inicial)
-> **Autor:** `<João>` · **Turma/Curso:** `<2 ano>` · **Entrega:** 30/10/2026
+> **Autor:** `<João>` · **Turma/Curso:** `<2 ano>` · **Projeto Web**
 
----
+## Problema e solução
 
-## 1. O problema
+Quando uma pessoa falta a uma consulta sem avisar, o horário fica vazio e outra pessoa continua esperando. Um estudo em uma UBS do sul do Brasil encontrou 19,2% de faltas (598 em 3.131 consultas). A situação afeta pacientes, profissionais e a gestão da saúde.
 
-### Contexto
-Nas Unidades Básicas de Saúde (UBS), as consultas são agendadas com dias ou semanas de antecedência. Muitos pacientes marcam e simplesmente não comparecem, e a unidade quase nunca fica sabendo a tempo de oferecer o horário a outra pessoa. A agenda, em geral, é controlada em papel, planilhas ou mensagens de WhatsApp, sem confirmação de presença e sem fila de espera organizada.
-
-### Dimensão do problema (dado real)
-Um estudo em uma UBS do sul do Brasil encontrou **19,2% de faltas** (598 faltas em 3.131 consultas médicas agendadas), com taxas mensais variando de 14,4% a 26%. Os próprios autores apontam como possíveis fatores o longo intervalo entre a marcação e o atendimento e a ausência de triagem da demanda.
+O Consulta Certa permite consultar horários, agendar, confirmar ou cancelar consultas. Quando uma vaga é liberada, o sistema a atribui ao primeiro paciente aguardando naquela especialidade. A recepção registra comparecimento ou falta, e o administrador consulta a taxa de absenteísmo.
 
 Fonte: SILVEIRA, G. S. et al. *Prevalência de absenteísmo em consultas médicas em unidade básica de saúde do sul do Brasil*. Rev Bras Med Fam Comunidade, 13(40):1-7, 2018. <https://rbmfc.org.br/rbmfc/article/download/1836/954/>
 
-### Quem é afetado
-- **Pacientes** que esperam semanas por uma vaga que, no fim, fica ociosa porque outra pessoa faltou.
-- **Profissionais e equipe da UBS**, que têm horários vazios e perdem produtividade.
-- **Gestão municipal de saúde**, que arca com o custo de uma estrutura subutilizada enquanto a fila de espera cresce.
+## Perfis e funcionalidades
 
-### Justificativa
-Cada consulta perdida é uma vaga que poderia ter atendido outra pessoa. Reduzir as faltas e reaproveitar os horários liberados aumenta o acesso ao atendimento sem exigir mais médicos nem mais estrutura física. Um sistema simples, que confirma presença e libera vagas com antecedência, ataca diretamente a causa do desperdício.
+- **Paciente:** cria conta, consulta horários, agenda, remarca, confirma e cancela suas consultas, entra ou sai da fila e acompanha o histórico.
+- **Atendente:** consulta a agenda da unidade, agenda em nome de um paciente, gerencia a fila e registra comparecimento ou falta.
+- **Administrador:** faz as ações de atendente, gerencia perfis, unidades, especialidades, profissionais e horários, e consulta relatórios.
 
----
+As permissões são verificadas pela API. O paciente só consulta e altera seus próprios agendamentos. As senhas são protegidas com bcrypt e as rotas protegidas usam JWT.
 
-## 2. Proposta de solução
+## Fluxo e regras de negócio
 
-Uma aplicação web em que o paciente agenda, **confirma ou cancela** sua consulta, e a equipe da unidade acompanha a agenda e as faltas. Quando um paciente cancela ou não confirma a tempo, a vaga é liberada e **oferecida a quem está na fila de espera**.
+1. O paciente cria uma conta e entra no sistema.
+2. Escolhe uma especialidade e busca horários livres.
+3. Agenda uma vaga. A API bloqueia o horário dentro de uma transação para impedir reservas simultâneas.
+4. O paciente confirma até duas horas antes. O sistema verifica periodicamente consultas não confirmadas e cancela as vencidas.
+5. Ao cancelar ou expirar uma consulta, o horário fica livre e é atribuído à pessoa mais antiga na fila daquela especialidade.
+6. A recepção registra compareceu ou faltou depois do horário da consulta.
+7. O administrador consulta o relatório de faltas por período e especialidade.
 
-### Objetivos
-- Reduzir o número de faltas por meio de confirmação obrigatória de presença antes da consulta.
-- Reaproveitar vagas liberadas com uma fila de espera por especialidade.
-- Dar à recepção e à gestão uma visão clara da agenda e do histórico de faltas.
-- Substituir o controle em papel/planilha por um registro único e confiável.
+A oferta de vaga aparece como novo agendamento no painel do paciente quando ele entrar no sistema. O protótipo não envia e-mail nem SMS.
 
----
+## Tecnologias e organização
 
-## 3. Funcionalidades previstas
+- Front-end: HTML, CSS e JavaScript puro, DOM e Fetch.
+- Back-end: Node.js, Express e API REST.
+- Banco: MySQL pelo pacote `mysql2`.
+- Segurança: `bcrypt`, `jsonwebtoken`, `dotenv` e autorização por perfil.
 
-**Contas e acesso**
-- Cadastro e login de usuários (senha protegida, autenticação via JWT).
-- Níveis de acesso por perfil.
-
-**Agendamento**
-- Consulta de especialidades, profissionais e horários disponíveis.
-- Agendamento, remarcação e cancelamento de consultas.
-- Confirmação de presença dentro de um prazo antes da consulta.
-
-**Fila de espera e vagas**
-- Entrada na fila de espera de uma especialidade.
-- Liberação automática da vaga quando há cancelamento ou falta de confirmação, oferecendo-a ao próximo da fila.
-
-**Acompanhamento e gestão**
-- Registro de comparecimento (compareceu / faltou).
-- Histórico de consultas e faltas por paciente.
-- Relatório com taxa de absenteísmo por período e por especialidade.
-- CRUD de unidades, especialidades e horários (administração).
-
----
-
-## 4. Tipos de usuário e ações
-
-| Perfil | O que pode fazer |
-|---|---|
-| **Paciente** | Cadastrar-se e fazer login; ver horários disponíveis; agendar, remarcar, confirmar e cancelar **suas** consultas; entrar na fila de espera; ver seu histórico. |
-| **Atendente (recepção)** | Ver a agenda da unidade; agendar e cancelar consultas em nome de pacientes; registrar comparecimento ou falta; gerenciar a fila de espera. |
-| **Administrador (gestor)** | Tudo o que o atendente faz, além de gerenciar usuários e perfis, unidades, especialidades e profissionais, e ver os relatórios de absenteísmo. |
-
-As permissões serão verificadas **na API** (middleware de autorização), e não apenas escondidas na interface.
-
----
-
-## 5. Fluxo básico de funcionamento
-
-1. O paciente se cadastra e faz login (recebe um token JWT).
-2. Escolhe uma especialidade e vê os horários livres.
-3. Agenda a consulta. Se não houver horário, entra na **fila de espera**.
-4. Perto da data da consulta, o sistema pede a **confirmação de presença** dentro de um prazo.
-5. **Confirmou:** a consulta segue mantida.
-   **Cancelou ou não confirmou no prazo:** a consulta é cancelada e a vaga é liberada.
-6. A vaga liberada é oferecida ao primeiro paciente da fila de espera daquela especialidade.
-7. No dia, a recepção registra se o paciente **compareceu** ou **faltou**.
-8. O gestor consulta os relatórios com a taxa de faltas.
-
-```
-Paciente ──> Agenda consulta ──> Confirma presença? ──sim──> Consulta mantida ──> Compareceu / Faltou
-                  │                      │
-          sem vaga│                      │não / prazo vencido
-                  ▼                      ▼
-           Fila de espera <──── Vaga liberada (cancelamento)
-```
-
----
-
-## 6. Tecnologias
-
-- **Front-end:** HTML, CSS e JavaScript (manipulação do DOM e Fetch)
-- **Back-end:** Node.js e Express (API REST)
-- **Banco de dados:** MySQL
-- **Autenticação:** JWT, com senhas criptografadas
-
----
-
-## 7. Estrutura do projeto
-
-```
+```text
 consulta-certa/
 ├── backend/
-│   ├── routes/          # endpoints da API
-│   ├── controllers/     # regras de negócio
-│   ├── middlewares/     # autenticação (JWT), autorização, erros
-│   ├── database/        # conexão com o MySQL
+│   ├── controllers/       # lógica e regras de negócio
+│   ├── database/          # pool MySQL e transações
+│   ├── middlewares/       # autenticação, autorização e erros
+│   ├── routes/            # endpoints da API
+│   ├── scripts/           # criação do admin e horários de demonstração
+│   ├── services/          # liberação e atribuição de vagas
 │   ├── server.js
 │   ├── package.json
 │   └── .env.example
 ├── frontend/
-│   ├── css/
-│   ├── js/
+│   ├── css/               # estilos responsivos
+│   ├── js/                # formulários e chamadas Fetch
 │   ├── assets/
-│   └── index.html
-├── sql/                 # script do banco (Entrega 2)
-├── docs/
+│   ├── index.html         # acesso com abas
+│   ├── login.html
+│   ├── cadastro.html
+│   └── painel.html        # telas por perfil
+├── sql/consulta_certa.sql
+├── docs/roteiro-apresentacao.md
 ├── .gitignore
 └── README.md
 ```
 
----
+## Banco de dados
 
-## 8. Modelo de dados planejado (a implementar na Entrega 2)
+```text
+perfis 1 ── N usuarios
+unidades 1 ── N profissionais N ── 1 especialidades
+profissionais 1 ── N horarios 1 ── N consultas N ── 1 usuarios (pacientes)
+usuarios (pacientes) 1 ── N fila_espera N ── 1 especialidades
+fila_espera 0..1 ── 1 consultas (vaga atribuída)
+```
 
-| Tabela | Finalidade | Relacionamentos |
-|---|---|---|
-| `usuarios` | Pacientes, atendentes e administradores | possui um `perfil` |
-| `unidades` | Unidades de saúde | — |
-| `especialidades` | Clínica geral, pediatria etc. | — |
-| `profissionais` | Médicos e seus vínculos | unidade, especialidade |
-| `horarios` | Vagas disponíveis na agenda | profissional |
-| `consultas` | Agendamentos e seu status (agendada, confirmada, cancelada, compareceu, faltou) | paciente, horário |
-| `fila_espera` | Pacientes aguardando vaga | paciente, especialidade |
+O script cria as tabelas, chaves estrangeiras, perfis, duas especialidades, uma unidade e dois profissionais de demonstração. O administrador de teste é criado pelo script `seed:admin`, com dados fornecidos localmente no `.env`.
 
----
+## Como instalar e executar
 
-## 9. Cronograma das entregas
+Requisitos: Node.js, npm e servidor MySQL local. No terminal, dentro do projeto:
 
-| Entrega | Foco | Status |
-|---|---|---|
-| 1 | Problema, proposta e estrutura inicial | ✅ Esta entrega |
-| 2 | Banco de dados, cadastro, login e JWT | ⬜ |
-| 3 | CRUD completo, integração e permissões | ⬜ |
-| 4 | Projeto completo, documentação e apresentação | ⬜ |
+1. Crie o banco executando `sql/consulta_certa.sql` no MySQL Workbench ou no cliente MySQL. O script cria o banco `consulta_certa`.
+2. Copie `backend/.env.example` para `backend/.env` e preencha os dados do MySQL. Troque `JWT_SECRET` por uma chave aleatória com pelo menos 32 caracteres e defina `ADMIN_SENHA` com pelo menos 12 caracteres. Para uma conta de paciente com dois atendimentos fictícios para o relatório, troque também `DEMO_PACIENTE_EMAIL` e `DEMO_PACIENTE_SENHA` (mínimo 12 caracteres). Não envie `.env` ao GitHub.
+3. Instale os pacotes e crie o administrador:
 
----
+   ```powershell
+   cd backend
+   npm install
+   npm run seed:admin
+   npm run seed:demo
+   npm run dev
+   ```
 
-## 10. Como executar
+4. Abra <http://localhost:3000>. A rota <http://localhost:3000/api/saude> deve responder `{"status":"ok","banco":"conectado"}`.
+5. Entre como administrador usando o e-mail e a senha definidos no `.env`. Se configurou a conta demo, entre como paciente usando `DEMO_PACIENTE_EMAIL` e `DEMO_PACIENTE_SENHA`; o histórico fictício permite demonstrar o relatório. Também pode cadastrar outro paciente pela tela de cadastro. Depois de alterar um perfil no painel, saia e entre novamente para receber um JWT com o novo perfil.
 
-A instalação e a execução serão documentadas conforme o projeto evoluir (README final na Entrega 4). Já existe um modelo de variáveis de ambiente em `backend/.env.example`; o arquivo `.env` real **não** deve ser enviado ao GitHub.
+`seed:demo` cria horários livres para os próximos dias. Se as variáveis da conta demo estiverem configuradas, ele também cria uma conta paciente e dois atendimentos fictícios (um comparecimento e uma falta) para ilustrar o relatório. Use esses dados somente em um banco local de apresentação. Não há credenciais padrão no código: as contas usam os valores definidos no `.env`.
 
+### Verificação manual para apresentação
+
+- Crie um paciente, entre como ele e procure uma especialidade com horários livres.
+- Agende, confirme, remarque e cancele uma consulta. Se houver alguém na fila da especialidade, o sistema atribui a vaga liberada a essa pessoa.
+- Entre com um usuário atendente e abra a agenda da data da consulta para registrar compareceu/faltou após o horário.
+- Entre como admin e mostre a gestão de usuários, cadastros, horários e relatório. Com a conta demo configurada, o relatório inclui dois registros fictícios; sem esses dados, fica vazio até haver consultas concluídas.
+- Para demonstrar autorização, entre como paciente, abra o console do navegador e execute: `fetch('/api/exemplo/admin', { headers: { Authorization: 'Bearer ' + localStorage.getItem('consultaCertaToken') } }).then(r => r.status)`; a API deve responder `403`.
+## Rotas principais
+
+| Método | Rota | Acesso | Ação |
+|---|---|---|---|
+| GET | `/api/saude` | Público | Verifica API e banco |
+| POST | `/api/auth/cadastro` | Público | Cria conta paciente |
+| POST | `/api/auth/login` | Público | Gera JWT |
+| GET | `/api/auth/perfil` | Autenticado | Consulta usuário atual |
+| GET | `/api/especialidades` | Público | Lista especialidades ativas |
+| GET/POST/PUT/DELETE | `/api/horarios` | Consulta público; alterações atendente/admin | Agenda e CRUD de horários |
+| GET | `/api/horarios/agenda` | Atendente/admin | Agenda da unidade |
+| GET/POST/PUT/DELETE | `/api/consultas` | Autenticado | Consulta e CRUD de agendamentos; DELETE cancela preservando histórico |
+| PUT | `/api/consultas/:id/resultado` | Atendente/admin | Registra compareceu/faltou |
+| GET/POST/DELETE | `/api/fila-espera` | Autenticado | Consulta, entra e sai da fila |
+| GET/POST | `/api/admin/unidades`, `/especialidades`, `/profissionais` | Admin | Lista e cria cadastros da unidade |
+| PUT/DELETE | `/api/admin/:recurso/:id` | Admin | Atualiza e exclui unidade, especialidade ou profissional |
+| GET | `/api/admin/usuarios` | Admin | Lista usuários |
+| PUT | `/api/admin/usuarios/:id/perfil` | Admin | Altera perfil |
+| GET | `/api/relatorios/absenteismo?de=AAAA-MM-DD&ate=AAAA-MM-DD` | Admin | Taxa de faltas por especialidade |
+
+Para horários, consultas e fila, os métodos de leitura e alteração detalhados dependem do caminho e do perfil. O código de rotas é a referência de cada endpoint.
+
+## Segurança e Git
+
+- `.env`, `node_modules/`, chaves privadas e logs estão no `.gitignore`.
+- A API usa parâmetros SQL (`?`) para os valores recebidos e valida o perfil antes de executar operações administrativas.
+- O mesmo repositório GitHub é usado para as quatro entregas. Commits devem descrever cada bloco de trabalho. Não faça push até revisar o conteúdo e decidir enviá-lo.
+- O front-end é servido pelo próprio Express, evitando configuração de servidor separado.
+
+## Apresentação
+
+O roteiro com a ordem da demonstração e dez perguntas prováveis está em [`docs/roteiro-apresentacao.md`](docs/roteiro-apresentacao.md).
