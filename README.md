@@ -1,9 +1,9 @@
-# Consulta Certa
+﻿# Consulta Certa
 
 Sistema web para **reduzir faltas (absenteísmo) em consultas médicas da atenção básica**, organizando agendamentos, confirmações e o reaproveitamento de vagas liberadas.
 
 > Projeto Web — Entrega 1 (Problema e estrutura inicial)
-> **Autor:** _[seu nome]_ · **Turma/Curso:** _[preencha]_ · **Entrega:** 30/10/2026
+> **Autor:** `<SEU NOME>` · **Turma/Curso:** `<SUA TURMA>` · **Entrega:** 30/10/2026
 
 ---
 
@@ -158,3 +158,4 @@ consulta-certa/
 ## 10. Como executar
 
 A instalação e a execução serão documentadas conforme o projeto evoluir (README final na Entrega 4). Já existe um modelo de variáveis de ambiente em `backend/.env.example`; o arquivo `.env` real **não** deve ser enviado ao GitHub.
+
