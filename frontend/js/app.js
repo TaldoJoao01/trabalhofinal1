@@ -1,4 +1,6 @@
-const API = '/api';
+const API = ['localhost', '127.0.0.1'].includes(window.location.hostname) && window.location.port !== '3000'
+  ? 'http://localhost:3000/api'
+  : '/api';
 if (localStorage.getItem('consultaCertaToken')) window.location.replace('painel.html');
 const mensagem = document.querySelector('#mensagem-acesso');
 const botoesAbas = document.querySelectorAll('[data-formulario]');
@@ -11,7 +13,7 @@ for (const botao of botoesAbas) botao.addEventListener('click', () => {
 async function enviar(caminho, dados) {
   const resposta = await fetch(`${API}${caminho}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
   const corpo = await resposta.json().catch(() => null);
-  if (!resposta.ok) throw new Error(corpo?.erro || 'Não foi possível concluir a operação.');
+  if (!resposta.ok) throw new Error(corpo?.erro || 'NÃ£o foi possÃ­vel concluir a operaÃ§Ã£o.');
   return corpo;
 }
 const formLogin = document.querySelector('#form-login');
