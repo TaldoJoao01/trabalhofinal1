@@ -3,7 +3,7 @@
 Sistema web para **reduzir faltas (absenteísmo) em consultas médicas da atenção básica**, organizando agendamentos, confirmações e o reaproveitamento de vagas liberadas.
 
 > Projeto Web — Entrega 1 (Problema e estrutura inicial)
-> **Autor:** `<SEU NOME>` · **Turma/Curso:** `<SUA TURMA>` · **Entrega:** 30/10/2026
+> **Autor:** `<João>` · **Turma/Curso:** `<2 ano>` · **Entrega:** 30/10/2026
 
 ---
 
