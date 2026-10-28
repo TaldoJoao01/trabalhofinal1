@@ -1,0 +1,11 @@
+{
+  "name": "consulta-certa-backend",
+  "version": "0.1.0",
+  "description": "API REST do sistema Consulta Certa",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "license": "ISC"
+}
