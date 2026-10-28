@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#0b6e4f"><title>Consulta Certa | Painel</title><link rel="stylesheet" href="css/style.css"></head>
+<body class="pagina-painel">
+<header class="topo"><a class="marca" href="painel.html">Consulta Certa</a><div class="usuario-topo"><span id="nome-usuario"></span><button id="sair" class="botao leve" type="button">Sair</button></div></header>
+<main class="conteudo-painel">
+  <section class="boas-vindas"><div><span class="sobretitulo">Painel de atendimento</span><h1 id="titulo-painel">Olá</h1><p>Acompanhe consultas e vagas da unidade.</p></div><div class="selo-perfil" id="perfil-usuario"></div></section>
+  <section id="area-paciente" class="area-perfil oculto">
+    <div class="grade-dupla">
+      <article class="cartao"><h2>Encontre um horário</h2><form id="form-filtro-horarios" class="linha-form"><label>Especialidade<select name="especialidade_id" id="filtro-especialidade" required></select></label><label>Data<input name="data" type="date"></label><button class="botao principal" type="submit">Buscar</button></form><div id="lista-horarios" class="lista-cartoes"></div></article>
+      <article class="cartao"><h2>Fila de espera</h2><p class="texto-suave">Se não encontrar horário, entre na fila da especialidade.</p><form id="form-fila" class="linha-form"><label>Especialidade<select name="especialidade_id" id="fila-especialidade" required></select></label><button class="botao contorno" type="submit">Entrar na fila</button></form><div id="lista-fila" class="lista-linhas"></div></article>
+    </div>
+    <article class="cartao secao-consultas"><div class="cabecalho-secao"><div><span class="sobretitulo">Sua agenda</span><h2>Consultas</h2></div><button id="atualizar-consultas" class="botao leve" type="button">Atualizar</button></div><div id="lista-consultas" class="tabela-responsiva"></div></article>
+  </section>
+  <section id="area-atendente" class="area-perfil oculto"><article class="cartao"><div class="cabecalho-secao"><div><span class="sobretitulo">Recepção</span><h2>Agenda da unidade</h2></div><form id="form-data-agenda" class="linha-form compacta"><label>Data<input name="data" type="date" required></label><button class="botao principal" type="submit">Ver agenda</button></form></div><div id="agenda-unidade" class="tabela-responsiva"></div></article></section>
+  <section id="area-admin" class="area-perfil oculto">
+    <article class="cartao"><div class="cabecalho-secao"><div><span class="sobretitulo">Indicadores</span><h2>Absenteísmo</h2></div></div><form id="form-relatorio" class="linha-form compacta"><label>De<input name="de" type="date" required></label><label>Até<input name="ate" type="date" required></label><button class="botao principal" type="submit">Gerar relatório</button></form><div id="relatorio" class="tabela-responsiva"></div></article>
+    <article class="cartao"><div class="cabecalho-secao"><div><span class="sobretitulo">Acessos</span><h2>Usuários e perfis</h2></div></div><div id="lista-usuarios" class="tabela-responsiva"></div></article>
+    <article class="cartao"><div class="cabecalho-secao"><div><span class="sobretitulo">Cadastros da unidade</span><h2>Unidades, especialidades e profissionais</h2></div></div><div id="gestao-cadastros" class="grade-cadastros"></div></article>
+    <article class="cartao"><div class="cabecalho-secao"><div><span class="sobretitulo">Agenda</span><h2>Criar horários</h2></div></div><form id="form-criar-horario" class="linha-form"><label>Profissional<select name="profissional_id" id="profissional-horario" required></select></label><label>Início<input name="inicio" type="datetime-local" required></label><input name="id" type="hidden"><button class="botao principal" type="submit">Criar horário</button><button class="botao leve" type="reset">Limpar</button></form><div id="gestao-horarios" class="tabela-responsiva"></div><p class="texto-suave">Atendentes também podem criar e editar horários pela API.</p></article>
+  </section>
+  <p id="mensagem-painel" class="mensagem" aria-live="polite"></p>
+</main><script src="js/painel.js"></script>
+</body></html>
